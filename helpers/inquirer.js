@@ -98,10 +98,89 @@ const leerInput = async( mensaje) =>{
     // retornamos la opcion del usuario
     return desc;
 };
-  
+
+
+// Metodo que hace una lista de las tareas para poder borrar alguna
+const listadoTareasBorrar= async(tareas=[])=>{
+    
+    // creamos una constancte choices con map, que lo que hace es devolver un nuevo arreglo con
+    // pero transformando los items del arreglo treas al valor que uno decee, en este caso el objeto en el return
+    const choices=tareas.map((tarea, i )=>{
+        const idx= `${i+1}`.green;
+        return{
+            value:tarea.id,
+            name:`${idx} ${tarea.desc}`
+
+        }
+    }); 
+
+    // con esto podemos agregar otra opcion al arreglo choices
+    choices.unshift(
+        {
+            value:'0',
+            name:'0.'.green + 'Cancelar'
+        }
+    );
+
+    // arreglo para el prompt de inquirer que permite desplegar las tareas como un menu
+    // sera de tipo lista, el nombre es el id de la tarea, y en la choices estaran las opciones creadas con map
+    const preguntas=[{
+        type:'list',
+        name:'id',
+        message:'Borrar',
+        choices // choices apunta al arreglo choices, por lo que en EC6 esto solo se deja un choices
+    }];
+    const {id} = await inquirer.prompt(preguntas);
+    return id;
+    
+};
+
+// funcion que pregunta al usuario si decea eliminar una tarea
+// mediante el type: confirm de inquirer
+const confirmar=async(message)=>{
+    const question=[
+        {
+            type:'confirm',
+            name:'ok',
+            message
+        }
+    ];
+    const {ok} = await inquirer.prompt(question);
+    return ok;
+
+
+};
+
+// funciona de manera similar al listadoBorrar, solo que aqui se emplea el metodo checked en las opciones y se maneja el tipo checkbox
+const mostrarListadoChecklist= async(tareas=[])=>{
+    
+    const choices=tareas.map((tarea, i )=>{
+        const idx= `${i+1}`.green;
+        return{
+            value:tarea.id,
+            name:`${idx} ${tarea.desc}`,
+            checked: (tarea.comEn) ? true : false // si es null, coloca false, cualquier otra cos sera true
+        }
+    }); 
+
+    const pregunta=[{
+        type:'checkbox',
+        name:'ids',
+        message:'Selecciones',
+        choices 
+    }];
+    const {ids} = await inquirer.prompt(pregunta);
+    return ids;
+    
+};
+
+
 
 module.exports={
     inquirerMenu,
     pausa,
-    leerInput
+    leerInput,
+    listadoTareasBorrar,
+    confirmar,
+    mostrarListadoChecklist
 };

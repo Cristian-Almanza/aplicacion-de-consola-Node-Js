@@ -37,6 +37,12 @@ class Tareas{
         this._listado={}; 
     };
 
+    borrarTarea(id=''){
+        if(this._listado[id]){
+            delete this._listado[id];
+        }
+    }
+
     // metodo que carga las tareas al objeto _listado
     cargarTareasFromArray(tareas=[]){
 
@@ -61,12 +67,18 @@ class Tareas{
 
         //Metodo de Fernando Herrera
 
+        // emplea el get listadoArr que ya contiene un arreglo de objetos
+        // con el foreach recorre cada tarea
         this.listadoArr.forEach((tarea,i)=>{
+            // crea un template string con el indice del foreach
             const idx= `${i+1}`.green;
+            // destructura la tarea y obtenemos la descripcion y si el comEn
             const { desc, comEn}=tarea;
+            // El estado se obtiene mediante un ternario, el cual determina si el resultado es nul o no
             const estado=(comEn)
                             ? 'Completado'.green
                             :  'Pendiente'.red;
+            // Unie todo en un template string para obtener la salida
             console.log(`${idx} ${desc} :: ${estado}`);
 
         });
@@ -84,7 +96,52 @@ class Tareas{
             } 
             i++;
         });*/
+    };
+
+    // Metodo para listar las tareas completadas o pendientes segun el argumento recibido
+    // tiene la limas logica que listarTareas
+    listarPendientesCompletadas(completadas=true){
+        let contador=0;
+        this.listadoArr.forEach((tarea)=>{
+            const { desc, comEn}=tarea;
+            // si completadas es true
+            if(completadas){
+                // y el comEn diferente de null
+                if( comEn!==null){
+                    contador+=1;
+                    // imprime las tareas completadas
+                    console.log(`${contador.toString().green} ${desc} :: ${comEn.green}`);
+                };
+            }
+            // mismo funcionamiento pero para tareas incompletas
+            else{
+                if(comEn==null){
+                    contador+=1;
+                    console.log(`${contador.toString().green} ${desc} :: ${'Pendiente'.red}`);
+                }
+            };             
+        });
+    };
+
+    // funcion que cambia el valor de las tareas por completado o nul segun se rquiera
+    toggleCompletadas(ids=[]){
+
+        // recibe un arreglo de ids de las tareas, para cada id pregunta si su estado es distinto de null,
+        ids.forEach(id=>{
+            const tarea = this._listado[id];
+            // si es asi, coloca la fecha del sistema en la cual se completo la tarea
+            if(!tarea.comEn){
+                tarea.comEn=new Date().toISOString();
+            }
+        });
+        // caso contrario, si no esta completada, coloca null en el campo de comEn
+        this.listadoArr.forEach(tarea =>{
+            if(!ids.includes(tarea.id)){
+                this._listado[tarea.id].comEn=null;
+            };
+        });
     }
 };
+
 
 module.exports=Tareas;

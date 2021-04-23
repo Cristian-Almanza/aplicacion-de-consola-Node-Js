@@ -1,8 +1,9 @@
 
 require('colors');
 
+const inquirer = require('inquirer');
 const { guardarDB, leerDB } = require('./helpers/guardarA');
-const { inquirerMenu, pausa, leerInput  } = require('./helpers/inquirer');
+const { inquirerMenu, pausa, leerInput ,listadoTareasBorrar, confirmar, mostrarListadoChecklist } = require('./helpers/inquirer');
 const Tarea = require('./models/tarea');
 const Tareas = require('./models/tareas');
 //const { mostrarMenu, pausa } = require('./helpers/mensajes');
@@ -38,19 +39,41 @@ const main= async()=>{
                 const desc = await leerInput('Descripcion: ');
                 // instancia de tarea
                 tareas.crearTarea(desc);
-                // guardar tarea
-                guardarDB(tareas.listadoArr);
             break;
             case '2':
-                console.log(tareas.listadoArr);
+                // llama el metodo para listar todas las tareas
+                tareas.listadoCompleto();
             break;
             case '3':
-                tareas.listadoCompleto();
+                tareas.listarPendientesCompletadas(true);
+            break;
+            case '4':
+                tareas.listarPendientesCompletadas(false);
+            break;
+            case'5':
+
+                const ids = await mostrarListadoChecklist(tareas.listadoArr);
+                tareas.toggleCompletadas(ids);
+            break;
+            case '6':
+                //tomamos el id de la tarea a borrar medinte la funcion
+                const id =  await listadoTareasBorrar(tareas.listadoArr);
+                
+                if(id!=='0'){
+                    // preguntamos si se eleminiara
+                    const ok=await confirmar('¿Estas seguro?');
+                    // en caso de ser correcto llamamos la funcion borrar
+                    if(ok){
+                        tareas.borrarTarea(id);
+                        console.log('Tarea Borrada!');
+                    };
+                };
             break;
             
         }
 
-       
+        // guardar tareas existentes en el arreglo listador
+        guardarDB(tareas.listadoArr);
 
         await pausa();
     }while(opt!=='0');
